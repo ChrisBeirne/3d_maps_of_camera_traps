@@ -269,3 +269,50 @@ render_highquality(filename="Plots/CM1_render_2.png", # The file name you want!
                    # The resultant plot size
                    width = 1200, height= 1200)
 
+
+
+
+# Context map
+library(leaflet)
+
+all.locs
+tmp3 <- st_as_sf(all.locs,coords=c("Longitude", "Latitude"), crs=4326)
+tmp3<- tmp3[tmp3$Group!="",]
+# Generate colours to display the catagory levels - R needs them as a factor
+
+n.stat <- length(unique(tmp3$Location.Name))
+
+
+tmp <- data.frame(Latitude=-12.569167, Longitude=-70.100111)
+tmp <- st_as_sf(tmp,coords=c("Longitude", "Latitude"), crs=4326)
+
+
+m <- leaflet() %>%
+  addProviderTiles(providers$Esri.WorldTopoMap, group="Base") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group="Satellite") %>%  # Add satellite data
+  
+  addCircleMarkers(lng= st_coordinates(tmp3)[,1], lat= st_coordinates(tmp3)[,2],
+                   color= "#f90000",stroke=F,
+                   popup=paste( tmp3$Location.ID), fillOpacity=0.8, radius=4) %>%
+  
+  addCircleMarkers(lng= st_coordinates(tmp)[,1], lat= st_coordinates(tmp)[,2],
+                   color= "#ffd901",stroke=F,
+                   popup=paste( tmp3$Location.ID), fillOpacity=0.8, radius=4) %>%
+  
+  
+  addLegend("topleft", colors = c("#f90000","#ffd901") ,
+            labels=c("Cameras", "Research station"),
+            opacity = 1
+  ) %>%
+  addScaleBar(
+    position = c("bottomleft"),
+    options = scaleBarOptions()
+  ) %>%
+
+  # Layers control
+  addLayersControl(
+    baseGroups = c("Satellite", "Base"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+m
+
