@@ -33,7 +33,7 @@ tmp <- dataentry_files[dataentry_files$name %in% c("Entrada_data","Camera_locati
 # Downloads all the files into a subfolder
 for (i in 1:nrow(tmp)) {
   drive_download(as_id(tmp$id[i]), type = "csv",
-                 path = paste("Data/", dataentry_files$name[i], sep = "/"), 
+                 path = paste("Data/", tmp$name[i], sep = "/"), 
                  overwrite=T)
 }
 
@@ -48,7 +48,8 @@ tmp2 <- st_as_sf(locs,coords=c("Longitude", "Latitude"), crs=4326)
 
 # Convert them to UTM (so that you can link xy distance to elevation (if you want realistic maps)st_transform
 locs.m <- st_transform(tmp2, 32719)
-bounds <- st_as_sfc(st_bbox(locs.m))
+
+bounds <- st_as_sfc(st_bbox(tmp2))
 
 
 # Get the elevation data for the defined limits
@@ -58,7 +59,7 @@ elevation <- get_elev_raster(locations = bounds,
 #?get_elev_raster
 
 # Determine the elevation of the cameras (so you can plot them on your map)
-locs.m$Elevation <- extract(elevation,locs.m)
+tmp2$Elevation <- extract(elevation,tmp2)
 
 # Check all is as it seems with a basic plot
 #image(elevation, asp=1)
